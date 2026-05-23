@@ -5,13 +5,13 @@
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cerr << "Uso:  pinscher \n";
+        std::cerr << "Error: no input image specified\n";
         return 1;
     }
 
     Image* input = loadImage(argv[1]);
     if (!input) return 1;
-    std::cout << "Immagine caricata: " << input->width << "x" << input->height << "\n";
+    std::cout << "Image loaded: " << input->width << "x" << input->height << "\n";
 
     Image* output = allocImage(input->width, input->height);
 
@@ -21,7 +21,7 @@ int main(int argc, char* argv[]) {
     sequentialConvolution(input, output, gauss);
     auto t1 = std::chrono::high_resolution_clock::now();
     double msGauss = std::chrono::duration<double, std::milli>(t1 - t0).count();
-    std::cout << "Gaussian 5x5 sequenziale: " << msGauss << " ms\n";
+    std::cout << "Sequential Gaussian 5x5: " << msGauss << " ms\n";
     saveImage(output, "output_gaussian.png");
 
     // Test Sobel
@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     sequentialSobel(input, output);
     auto t3 = std::chrono::high_resolution_clock::now();
     double msSobel = std::chrono::duration<double, std::milli>(t3 - t2).count();
-    std::cout << "Sobel sequenziale: " << msSobel << " ms\n";
+    std::cout << "Sequential Sobel: " << msSobel << " ms\n";
     saveImage(output, "output_sobel.png");
 
     freeKernel(gauss);
