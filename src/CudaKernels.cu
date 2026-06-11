@@ -418,3 +418,16 @@ BenchmarkResult launch3Ch3Arrays(const Image* input, Image* output, const Kernel
 }
 
 
+// Validation 
+bool validateResults(const Image* cpuOutput, const Image* gpuOutput) {
+    int n = planeSize(cpuOutput) * 3;
+    for (int i = 0; i < n; i++) {
+        if (abs((int)cpuOutput->data[i] - (int)gpuOutput->data[i]) > 1) {
+            printf("Mismatch found at index %d\n", i);
+            return false;
+        }
+    }
+    return true;
+}
+
+
