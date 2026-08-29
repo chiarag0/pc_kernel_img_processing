@@ -3,7 +3,6 @@
 #include <cmath>
 
 // Define array in constant memory, to be read by CUDA kernels
-__constant__ float d_constKernel[MAX_KERNEL_DIM * MAX_KERNEL_DIM];
 
 
 __device__ inline uint8_t clampToUint8(float val) {
@@ -171,7 +170,7 @@ __global__ void kernel1ChConst(const uint8_t* input, uint8_t* output, int width,
 // analogous to launch1ChNoConst but copies data in const memory instead of allocating in global memory and passing pointer to kernel
 BenchmarkResult launch1ChConst(const Image* input, Image* output, const Kernel& kernel, dim3 blockSize, float cpuMs){
 
-    int8_t *d_paddedImg, *d_output;
+    uint8_t *d_paddedImg, *d_output;
     int paddedWidth, paddedHeight;
 
     cudaEvent_t totalStart, totalStop;
@@ -228,7 +227,7 @@ __global__ void kernel3ChGrid(const uint8_t* input, uint8_t* output, int width, 
 }
 
 BenchmarkResult launch3ChGrid(const Image* input, Image* output, const Kernel& kernel, dim3 blockSize, float cpuMs){
-    int8_t *d_paddedImg, *d_output;
+    uint8_t *d_paddedImg, *d_output;
     int paddedWidth, paddedHeight;
 
     cudaEvent_t totalStart, totalStop;
@@ -295,7 +294,7 @@ __global__ void kernel3ChNoGrid(const uint8_t* input, uint8_t* output, int width
 }
 
 BenchmarkResult launch3ChNoGrid(const Image* input, Image* output, const Kernel& kernel, dim3 blockSize, float cpuMs){
-    int8_t *d_paddedImg, *d_output;
+    uint8_t *d_paddedImg, *d_output;
     int paddedWidth, paddedHeight;
 
     cudaEvent_t totalStart, totalStop;
@@ -429,5 +428,3 @@ bool validateResults(const Image* cpuOutput, const Image* gpuOutput) {
     }
     return true;
 }
-
-

@@ -10,7 +10,7 @@
 #include "CudaKernels.cuh"
 
 
-static const int N_ITERATIONS = 20;   
+static const int N_ITERATIONS = 50;   
 static const int N_DISCARD = 2; // to avoid cold cache effects
 static const float SIGMA  = 1.0f;  // sigma for gaussian kernel
 
@@ -228,17 +228,17 @@ int main() {
 
 
     // Experiment 2: fixed img resolution (1080p), varying kernel size
-    std::ofstream csv("results/fixed_resolution_results.csv");
-    csv << "resolution,imgWidth,imgHeight,kernelSize,variant,"
-               "blockX,blockY,gpuMs,totalMs,speedup\n";
+    std::ofstream csv2("results/fixed_resolution_results.csv");
+    csv2 << "resolution,imgWidth,imgHeight,kernelSize,variant,"
+                "blockX,blockY,gpuMs,totalMs,speedup\n";
 
     for (int ks = 0; ks < N_KERNEL_SIZES; ks++) {
-        runBenchmark(csv,
-            RESOLUTIONS[0].path,
-            RESOLUTIONS[0].name,
+        runBenchmark(csv2,
+            RESOLUTIONS[2].path,
+            RESOLUTIONS[2].name,
             KERNEL_SIZES[ks]);
     }
-    csv.close();
+    csv2.close();
     std::cout << "Saved: results/fixed_resolution_results.csv\n";
 
     std::cout << "\nBenchmarking completed.\n";

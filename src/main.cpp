@@ -24,14 +24,6 @@ int main(int argc, char* argv[]) {
     std::cout << "Sequential Gaussian 5x5: " << msGauss << " ms\n";
     saveImage(output, "output_gaussian.png");
 
-    // Test Sobel
-    auto t2 = std::chrono::high_resolution_clock::now();
-    sequentialSobel(input, output);
-    auto t3 = std::chrono::high_resolution_clock::now();
-    double msSobel = std::chrono::duration<double, std::milli>(t3 - t2).count();
-    std::cout << "Sequential Sobel: " << msSobel << " ms\n";
-    saveImage(output, "output_sobel.png");
-
     freeKernel(gauss);
     freeImage(input);
     freeImage(output);

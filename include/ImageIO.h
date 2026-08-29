@@ -30,4 +30,4 @@ void freeImage(Image* img);
 
 // Add padding to the image by replicating the border pixels
 // New size will be (width + 2*padding) x (height + 2*padding)
-Image* addPadding(const Image* img, int padding);
+Image* addPadding(const Image* img, int padding);.
