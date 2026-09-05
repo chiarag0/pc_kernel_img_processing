@@ -2,8 +2,7 @@
 #include "ImageIO.h"
 
 enum class KernelType {
-    GAUSSIAN,
-    SOBEL
+    GAUSSIAN
 };
 
 struct Kernel {

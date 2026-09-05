@@ -155,7 +155,7 @@ def plotFixedImage(cpuDf, gpuDf):
 
         fig, axes = plt.subplots(1, 2, figsize=(14, 5))
         fig.suptitle(
-            f"Fixed Resolution (1800p) — Block size {blockLabel}",
+            f"Fixed Resolution (1080p) — Block size {blockLabel}",
             fontsize=13, fontweight="bold"
         )
 
@@ -214,7 +214,7 @@ def plotFixedImage(cpuDf, gpuDf):
 
     # Overall plot: best block size for each variant
     fig, ax = plt.subplots(figsize=(10, 5))
-    fig.suptitle("Fixed Resolution (1800p) — Best block size for variant",
+    fig.suptitle("Fixed Resolution (1080p) — Best block size for variant",
                  fontsize=13, fontweight="bold")
     for variant in VARIANT_ORDER:
         vData = gpuDf[gpuDf["variant"] == variant]
@@ -244,7 +244,7 @@ def plotFixedImage(cpuDf, gpuDf):
 
     # Plot impact of block size: for each variant, compare the 3 block sizes
     fig, axes = plt.subplots(1, len(VARIANT_ORDER), figsize=(18, 4), sharey=True)
-    fig.suptitle("Fixed Resolution (1800p) — Impact of block size for each variant",
+    fig.suptitle("Fixed Resolution (1080p) — Impact of block size for each variant",
                  fontsize=13, fontweight="bold")
     blockPalette = ["#e74c3c", "#3498db", "#2ecc71"]
     for idx, variant in enumerate(VARIANT_ORDER):
@@ -276,6 +276,78 @@ def plotFixedImage(cpuDf, gpuDf):
 
 
 
+    # Total speedup (using totalMs, i.e. GPU + transfer) with best block size — fixed kernel
+def plotTotalSpeedupFixedKernel(cpuDf, gpuDf):
+    cpuRef = cpuDf[["resolution", "kernelSize", "gpuMs"]].rename(columns={"gpuMs": "cpuMs"})
+    merged = gpuDf.merge(cpuRef, on=["resolution", "kernelSize"])
+    merged["totalSpeedup"] = merged["cpuMs"] / merged["totalMs"]
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    fig.suptitle("Fixed Kernel (11×11) — Total speedup with best block size",
+                 fontsize=13, fontweight="bold")
+    for variant in VARIANT_ORDER:
+        vData = merged[merged["variant"] == variant]
+        bestB = vData.groupby(["blockX", "blockY"])["totalSpeedup"].mean().idxmax()
+        vData = vData[(vData["blockX"] == bestB[0]) & (vData["blockY"] == bestB[1])]
+        vData = vData.set_index("resolution").reindex(RES_ORDER).dropna()
+        ax.plot(
+            range(len(vData)), vData["totalSpeedup"],
+            label=f"{variant} ({int(bestB[0])}x{int(bestB[1])})",
+            color=VARIANT_COLORS[variant],
+            marker=VARIANT_MARKERS[variant],
+            linewidth=2, markersize=7
+        )
+    ax.set_xticks(range(len(RES_ORDER)))
+    ax.set_xticklabels(RES_ORDER)
+    ax.set_xlabel("Img resolution")
+    ax.set_ylabel("Speedup (CPU / total GPU time)")
+    ax.set_title("Total speedup (incl. PCIe transfer) with best block size")
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    outPath = os.path.join(PLOTS_DIR, "fixed_kernel_total_speedup_best.png")
+    plt.savefig(outPath, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Salvato: {outPath}")
+
+
+# Total speedup (using totalMs, i.e. GPU + transfer) with best block size — fixed resolution
+def plotTotalSpeedupFixedImage(cpuDf, gpuDf):
+    cpuRef = cpuDf[["resolution", "kernelSize", "gpuMs"]].rename(columns={"gpuMs": "cpuMs"})
+    merged = gpuDf.merge(cpuRef, on=["resolution", "kernelSize"])
+    merged["totalSpeedup"] = merged["cpuMs"] / merged["totalMs"]
+    kernelSizes = sorted(merged["kernelSize"].unique())
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    fig.suptitle("Fixed Resolution (1080p) — Total speedup with best block size",
+                 fontsize=13, fontweight="bold")
+    for variant in VARIANT_ORDER:
+        vData = merged[merged["variant"] == variant]
+        bestB = vData.groupby(["blockX", "blockY"])["totalSpeedup"].mean().idxmax()
+        vData = vData[
+            (vData["blockX"] == bestB[0]) & (vData["blockY"] == bestB[1])
+        ].sort_values("kernelSize")
+        ax.plot(
+            vData["kernelSize"], vData["totalSpeedup"],
+            label=f"{variant} ({int(bestB[0])}x{int(bestB[1])})",
+            color=VARIANT_COLORS[variant],
+            marker=VARIANT_MARKERS[variant],
+            linewidth=2, markersize=7
+        )
+    ax.set_xlabel("Kernel size (side)")
+    ax.set_ylabel("Speedup (CPU / total GPU time)")
+    ax.set_xticks(kernelSizes)
+    ax.set_title("Total speedup (incl. PCIe transfer) with best block size")
+    ax.legend(fontsize=9)
+    ax.grid(True, alpha=0.3)
+    plt.tight_layout()
+    outPath = os.path.join(PLOTS_DIR, "fixed_image_total_speedup_best.png")
+    plt.savefig(outPath, dpi=150, bbox_inches="tight")
+    plt.close()
+    print(f"Salvato: {outPath}")
+
+
+
 if __name__ == "__main__":
     print("Plotting...\n")
 
@@ -290,5 +362,22 @@ if __name__ == "__main__":
         cpuDf, gpuDf = result
         print("\n-- fixed_resolution_results.csv --")
         plotFixedImage(cpuDf, gpuDf)
+        
+
+
+        result = loadCsv("fixed_kernel_results.csv")
+    if result:
+        cpuDf, gpuDf = result
+        print("-- fixed_kernel_results.csv --")
+        plotFixedKernel(cpuDf, gpuDf)
+        plotTotalSpeedupFixedKernel(cpuDf, gpuDf)
+
+    result = loadCsv("fixed_resolution_results.csv")
+    if result:
+        cpuDf, gpuDf = result
+        print("\n-- fixed_resolution_results.csv --")
+        plotFixedImage(cpuDf, gpuDf)
+        plotTotalSpeedupFixedImage(cpuDf, gpuDf)
+
 
     print("\nPlots saved in results/plots/")
