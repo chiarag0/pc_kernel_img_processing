@@ -1,0 +1,4 @@
+This project contains a CUDA-based implementation of Gaussian image convolution, comparing five GPU parallelization strategies against a sequential CPU baseline. The
+variants differ in their use of global or constant memory for kernel coefficients and in how they handle the three RGB colour channels.
+The performance of CUDA parallelization is evaluated across five image resolutions (360p to 4K) and five kernel sizes (3×3 to 33×33), using two CUDA Events timers to separate kernel-only execution time from end-to-end time including PCIe transfer and memory
+allocation overhead. 
