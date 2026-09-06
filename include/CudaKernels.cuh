@@ -5,7 +5,7 @@
 #define MAX_KERNEL_DIM 64
  
 // Kernel coefficients stored in constant memory.
-constant float d_constKernel[MAX_KERNEL_DIM * MAX_KERNEL_DIM];
+__constant__ float d_constKernel[MAX_KERNEL_DIM * MAX_KERNEL_DIM];
  
 struct BenchmarkResult {
     float gpuMs;

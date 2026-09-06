@@ -3,7 +3,7 @@
 #include <cmath>
 
 // Define array in constant memory, to be read by CUDA kernels
-
+__constant__ float d_constKernel[MAX_KERNEL_DIM * MAX_KERNEL_DIM];
 
 __device__ inline uint8_t clampToUint8(float val) {
     return (uint8_t)fminf(fmaxf(val, 0.f), 255.f);
